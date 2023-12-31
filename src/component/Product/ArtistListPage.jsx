@@ -1,8 +1,11 @@
 import React from "react";
 import styled from "styled-components";
+import AxiosApi from "../../axios/ProductAxios";
+import { useState, useEffect } from "react";
 
 const ArtistContainer = styled.div`
-  border : 1px solid #333;
+  display: flex;
+  justify-content: center;
   width: 20%;
   padding: 10px;
 `;
@@ -15,28 +18,54 @@ const ArtistBox = styled.div`
     border: none;
     background-color: #ddd;
     cursor: pointer;
+    font-weight: bolder;
     &:hover {
-        border-color: #ccc;
+        color: #008bff;
+        font-weight: bolder;
     }
 `;
-const InnerBox = styled.div.attrs({
-    className: "InnerBox",
-})`
-    display: flex;
-    flex-direction: ${(props) => props.$flexDirection || "row"};
-    align-items: ${(props)=> props.$alignItems || "center"};
-    width: ${(props)=>props.$width || "50%"};
-    height:100%;
-`;
-
-const ArtistListPage = () => {
+const ArtistItem = styled.div`
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-left: 8px;
+    border: none;
     
+    cursor: pointer;
+`
+
+const ArtistListPage = ({ onArtistSelect }) => {
+    const [artists, setArtists] = useState([]);
+
+    useEffect(() => {
+        const artistList = async () => {
+            try {
+                const response = await AxiosApi.productGet();
+                const uniqueArtists = response.data.filter((artist, index, self) =>
+                    index === self.findIndex((t) => (
+                        t.artistName === artist.artistName
+                    ))
+                );
+                setArtists(uniqueArtists);
+            } catch (error) {
+                console.error('데이터를 불러오는데 실패했습니다', error);
+            }
+        };
+        artistList();
+    }, []);
     
     return (
         <>
         <ArtistContainer>
-            <ArtistBox>크리에이터</ArtistBox>
-            <ArtistBox>sss</ArtistBox>
+            <div>
+            <ArtistBox onClick={() => onArtistSelect(null)}>크리에이터</ArtistBox>
+            {artists.map((artist, index) => (
+            <ArtistItem key={index} 
+            onClick={() => onArtistSelect(artist.artistName)}>
+                {artist.artistName}
+            </ArtistItem>
+            ))}
+            </div>
         </ArtistContainer>
         </>
     );

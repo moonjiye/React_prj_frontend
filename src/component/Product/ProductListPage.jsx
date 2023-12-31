@@ -112,6 +112,7 @@ const ProductListPage = ({ selectedArtist,products,setProducts}) => {
                 data = data.filter(product => product.artistName === selectedArtist);
             }
             setProducts(data);
+            setFilteredProducts(data); 
         } catch (error) {
             console.error('데이터를 불러오는데 실패했습니다', error);
         }
